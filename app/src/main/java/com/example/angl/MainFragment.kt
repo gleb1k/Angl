@@ -28,9 +28,9 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         var sentence = readSentence() ?: return
         sentence = sentence.lowercase()
 
-        var splittedSentence = sentence.splitToSequence(' ').filter { it.isNotBlank() }.toList()
+        var splittedSentence = sentence.splitToSequence(' ','.',',',':',';','!').filter { it.isNotBlank() }.toList()
 
-        val result = PassiveVoiceUtils.calculateType(splittedSentence)
+        val result = PassiveVoiceUtils(splittedSentence).calculateType()
         binding?.run {
             if (result == null) {
                 tvAnswer.text = "Not passive voice :c"

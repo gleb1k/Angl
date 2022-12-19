@@ -1,8 +1,10 @@
 package com.example.angl
 
-object PassiveVoiceUtils {
+class PassiveVoiceUtils(
+    private val sentence: List<String>
+) {
 
-    val types: Map<String, String> = mapOf(
+    private val types: Map<String, String> = mapOf(
         "Present Simple" to "Present Simple",
         "Present Continuous" to "Present Continuous",
         "Present Perfect" to "Present Perfect",
@@ -12,11 +14,13 @@ object PassiveVoiceUtils {
         "Past Perfect" to "Past Perfect",
 
         "Future Simple" to "Future Simple",
+        "Future Perfect" to "Future Perfect",
     )
-    val AmIsAre: List<String> = listOf("am", "is", "are")
-    val WasWere: List<String> = listOf("was", "were")
-    val HaveHas: List<String> = listOf("have", "has")
-    val V3s: List<String> = listOf(
+
+    private val AmIsAre: List<String> = listOf("am", "is", "are")
+    private val WasWere: List<String> = listOf("was", "were")
+    private val HaveHas: List<String> = listOf("have", "has")
+    private val V3s: List<String> = listOf(
         "beaten",
         "become",
         "begun",
@@ -166,75 +170,115 @@ object PassiveVoiceUtils {
     )
 
 
-    fun isContainsV3(splittedSentence: List<String>): Boolean {
-        return splittedSentence.any(V3s::contains)
+    private fun isContainsV3(): Boolean {
+        return sentence.any(V3s::contains)
     }
 
-    fun isContainsAmIsAre(splittedSentence: List<String>): Boolean {
-        return splittedSentence.any(AmIsAre::contains)
+    private fun isContainsAmIsAre(): Boolean {
+        return sentence.any(AmIsAre::contains)
     }
 
-    fun isContainsHaveHas(splittedSentence: List<String>): Boolean {
-        return splittedSentence.any(HaveHas::contains)
+    private fun isContainsHaveHas(): Boolean {
+        return sentence.any(HaveHas::contains)
     }
 
-    fun isContainsHave(splittedSentence: List<String>): Boolean {
-        return splittedSentence.any("have"::contains)
+    private fun isContainsHave(): Boolean {
+        return sentence.contains("have")
     }
 
-    fun isContainsWasWere(splittedSentence: List<String>): Boolean {
-        return splittedSentence.any(WasWere::contains)
+    private fun isContainsWasWere(): Boolean {
+        return sentence.any(WasWere::contains)
     }
 
-    fun isContainsBeing(splittedSentence: List<String>): Boolean {
-        return splittedSentence.any("being"::contains)
+    private fun isContainsBeing(): Boolean {
+        return sentence.contains("being")
     }
 
-    fun isContainsHad(splittedSentence: List<String>): Boolean {
-        return splittedSentence.any("had"::contains)
+    private fun isContainsHad(): Boolean {
+
+        return sentence.contains("had")
     }
 
-    fun isContainsBeen(splittedSentence: List<String>): Boolean {
-        return splittedSentence.any("been"::contains)
+    private fun isContainsBeen(): Boolean {
+        return sentence.contains("been")
     }
 
-    fun isContainsWill(splittedSentence: List<String>): Boolean {
-        return splittedSentence.any("will"::contains)
+    private fun isContainsWill(): Boolean {
+        return sentence.contains("will")
     }
 
-    fun isContainsBe(splittedSentence: List<String>): Boolean {
-        return splittedSentence.any("be"::contains)
+    private fun isContainsBe(): Boolean {
+        return sentence.contains("be")
     }
 
-    fun calculateType(sentence: List<String>): String? {
-        if (!isContainsV3(sentence)) return null
+    fun calculateType(): String? {
+        if (!isContainsV3()) return null
 
         //Present
-        if (isContainsAmIsAre(sentence)) {
-            return if (isContainsBeing(sentence))
+        if (isContainsAmIsAre()) {
+            //Проверка на дурака
+            if (isContainsHaveHas() || isContainsWasWere() || isContainsHad()
+                || isContainsBeen() || isContainsBe() || isContainsWill()
+            )
+                return null
+
+            return if (isContainsBeing())
                 types["Present Continuous"]
             else
                 types["Present Simple"]
         }
-        if (isContainsHaveHas(sentence) && isContainsBeen(sentence))
+        if (isContainsHaveHas() && isContainsBeen()) {
+            //Проверка на дурака
+            if (isContainsAmIsAre() || isContainsWasWere() || isContainsHad()
+                || isContainsBe() || isContainsWill()
+            )
+                return null
             return types["Present Perfect"]
+        }
 
         //Past
-        if (isContainsWasWere(sentence)) {
-            return if (isContainsBeing(sentence))
+        if (isContainsWasWere()) {
+            //Проверка на дурака
+            if (isContainsHaveHas() || isContainsHad() || isContainsAmIsAre()
+                || isContainsBeen() || isContainsBe() || isContainsWill()
+            )
+                return null
+
+            return if (isContainsBeing())
                 types["Past Continuous"]
             else
                 types["Past Simple"]
         }
-        if (isContainsHad(sentence) && isContainsBeen(sentence))
+        if (isContainsHad() && isContainsBeen()) {
+            //Проверка на дурака
+            if (isContainsHaveHas() || isContainsWasWere() || isContainsAmIsAre()
+                || isContainsBe() || isContainsWill() || isContainsBeing()
+            )
+                return null
+
             return types["Past Perfect"]
+        }
 
         //Future
-        if (isContainsWill(sentence) && isContainsBe(sentence)) {
+        if (isContainsWill() && isContainsBe()) {
+            //Проверка на дурака
+            if (isContainsHaveHas() || isContainsWasWere() || isContainsHad()
+                || isContainsBeen() || isContainsBeing()
+            )
+                return null
+
             return types["Future Simple"]
         }
-        if (isContainsWill(sentence) && isContainsHave(sentence) && isContainsBeen(sentence))
+        if (isContainsWill() && isContainsHave() && isContainsBeen()) {
+            //Проверка на дурака
+            if (isContainsBe() || isContainsWasWere() || isContainsHad() || isContainsAmIsAre()
+                || isContainsBeing()
+            )
+                return null
+
             return types["Future Perfect"]
+        }
+
 
         return null
     }
